@@ -1,0 +1,26 @@
+{
+  "name": "nsite-nip05-subscription",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "format": "prettier -w ."
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "^3.5.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.7.1",
+    "applesauce-core": "^0.11.0",
+    "applesauce-loaders": "^0.11.0",
+    "applesauce-signers": "^0.11.0",
+    "blossom-client-sdk": "^3.0.1",
+    "nostr-tools": "^2.10.4",
+    "rx-nostr": "^3.5.0",
+    "rxjs": "^7.8.2"
+  }
+}
