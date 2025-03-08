@@ -14,4 +14,15 @@ const ZAP_KEY = process.env.ZAP_KEY
   ? normalizeToPubkey(process.env.ZAP_KEY)
   : NSITE_PUBKEY;
 
-export { RELAYS, NSITE_KEY, NSITE_PUBKEY, ZAP_KEY, LOOKUP_RELAYS };
+const MIN_ZAP_AMOUNT = process.env.MIN_ZAP_AMOUNT
+  ? parseInt(process.env.MIN_ZAP_AMOUNT)
+  : 1000;
+
+export {
+  RELAYS,
+  NSITE_KEY,
+  NSITE_PUBKEY,
+  ZAP_KEY,
+  LOOKUP_RELAYS,
+  MIN_ZAP_AMOUNT,
+};

@@ -9,9 +9,24 @@ import {
   getZapSender,
   unixNow,
 } from "applesauce-core/helpers";
-import { filter, interval, lastValueFrom, map, startWith } from "rxjs";
+import {
+  debounceTime,
+  filter,
+  interval,
+  lastValueFrom,
+  map,
+  merge,
+  tap,
+} from "rxjs";
 import { kinds, verifyEvent } from "nostr-tools";
-import { LOOKUP_RELAYS, NSITE_KEY, NSITE_PUBKEY, RELAYS, ZAP_KEY } from "./env";
+import {
+  LOOKUP_RELAYS,
+  MIN_ZAP_AMOUNT,
+  NSITE_KEY,
+  NSITE_PUBKEY,
+  RELAYS,
+  ZAP_KEY,
+} from "./env";
 import { BlossomClient, getBlobSha256 } from "blossom-client-sdk";
 import { multiServerUpload } from "blossom-client-sdk/actions/multi-server";
 import { ReplaceableLoader, RequestLoader } from "applesauce-loaders";
@@ -76,8 +91,18 @@ replaceableLoader.next({
   pubkey: NSITE_PUBKEY,
 });
 
-// update the /.well-known/nostr.json every minute
-interval(60_000)
+// update the /.well-known/nostr.json
+merge(
+  // every 10 minutes
+  interval(60_000 * 10).pipe(
+    tap(() => console.log(`Triggering update from 10 minute timer`)),
+  ),
+  // every time a new zap is seen
+  eventStore.filters({ kinds: [kinds.Zap] }).pipe(
+    debounceTime(10_000),
+    tap(() => console.log(`Triggering update from new zap events`)),
+  ),
+)
   .pipe(
     // get since
     map(() => unixNow() - oneMonth),
@@ -110,8 +135,8 @@ interval(60_000)
         .sort((a, b) => a[0].localeCompare(b[0]))
         .reduce(
           (dir, [pubkey, total]) => {
-            // only include pubkeys that paid more than 1000 sats (values are in msat)
-            if (total / 1000 < 1000) return dir;
+            // only include pubkeys that paid more than min sats (totals are in msat)
+            if (total / 1000 < MIN_ZAP_AMOUNT) return dir;
 
             const metadata = eventStore.getReplaceable(0, pubkey);
             const profile = metadata && getProfileContent(metadata);
