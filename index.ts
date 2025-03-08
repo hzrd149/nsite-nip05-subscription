@@ -31,9 +31,9 @@ import { BlossomClient, getBlobSha256 } from "blossom-client-sdk";
 import { multiServerUpload } from "blossom-client-sdk/actions/multi-server";
 import { ReplaceableLoader, RequestLoader } from "applesauce-loaders";
 import { SimpleSigner } from "applesauce-signers";
+import { npubEncode } from "nostr-tools/nip19";
 
 import { NIP_05_PATH, NSITE_KIND } from "./const";
-import { npubEncode } from "nostr-tools/nip19";
 
 const signer = new SimpleSigner(NSITE_KEY);
 
@@ -183,6 +183,7 @@ merge(
       const existing = await requestLoader.replaceable({
         kind: NSITE_KIND,
         pubkey: NSITE_PUBKEY,
+        identifier: NIP_05_PATH,
       });
       const existingHash = getTagValue(existing, "x");
       if (!existingHash) throw new Error("Cant find existing hash");
